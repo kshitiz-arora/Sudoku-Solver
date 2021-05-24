@@ -1,0 +1,480 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jun 15 23:03:33 2020
+
+@author: kshitiz
+"""
+
+def input_sudoku():
+    sudoku = []
+    for _ in range(9):
+        l = list(input().split())
+        ls = []
+        for e in l:
+            ls.append(int(e))
+        sudoku.append(ls)
+    return sudoku
+
+sud = input_sudoku()
+
+'''
+sud = [[0, 0, 0, 0, 0, 0, 3, 0, 0],
+       [0, 1, 0, 0, 9, 3, 4, 0, 6],
+       [0, 0, 9, 0, 1, 0, 0, 0, 0],
+       [0, 0, 1, 0, 3, 9, 8, 0, 0],
+       [2, 0, 0, 0, 4, 0, 0, 0, 0],
+       [0, 7, 0, 2, 5, 0, 0, 0, 0],
+       [0, 0, 0, 0, 2, 0, 0, 0, 4],
+       [0, 0, 0, 0, 0, 0, 0, 3, 5],
+       [7, 2, 3, 0, 0, 0, 0, 6, 0]]
+'''
+
+for i in sud:
+    print(" ".join(map(str, i)))
+    
+def draw_sud(sudoku):
+    status = 0
+    gap = 0
+    for i in sudoku:
+        gap+=1
+        st = ''
+        for j in range(9):
+            if len(i[j])==1:
+                st+=str(i[j][0])+' '
+            else:
+                status+=1
+                st+='. '
+            if (j+1)%3==0:
+                st+='  '
+        print(st)
+        if gap%3==0:
+            print('')
+    if status>0:
+        return 'UNSOLVED'
+    else:
+        return 'SOLVED'
+
+def draw_to_solve(sud):
+    
+    for row in sud:
+        
+        lines = []
+        
+
+    
+def check(sud, r, c):
+    if sud[r][c]!=0:
+        return [sud[r][c]]
+    else:
+        check_from = []
+        sqr_r = 3*int(r//3)
+        sqr_c = 3*int(c//3)
+        for i in range(3):
+            for j in range(3):
+                y = sqr_r + i
+                x = sqr_c + j
+                val = sud[y][x]
+                if val!=0:
+                    check_from.append(val)
+        for i in range(9):
+            if sud[r][i]!=0:
+                check_from.append(sud[r][i])
+            if sud[i][c]!=0:
+                check_from.append(sud[i][c])
+        ans = []
+        for i in range(1, 10):
+            if i not in check_from:
+                ans.append(i)
+        # if len(ans)==1:
+            # print(r, c, check_from, ans)
+        return ans
+    
+def full_check(sud):
+    checked = [[0 for _ in range(9)] for _ in range(9)]
+    for i in range(9):
+        for j in range(9):
+            checked[i][j] = check(sud, i, j)
+    return checked
+
+sudoku = full_check(sud)
+
+def gen_pairs (l):
+    
+    cont = 1
+    
+    while cont!=0:
+        
+        cont = 0
+        
+        singles = []
+        for i in l:
+            if len(i)==1:
+                singles.append(i[0])
+        
+        for s in singles:
+            for i in l:
+                if len(i)>1:
+                    if s in i:
+                        cont+=1
+                        i.remove(s)
+                        
+        pairs = []; p_ind = []
+        for i in range(len(l)-1):
+            for j in range(i+1, len(l)):
+                if len(l[i])==2 and len(l[j])==2:
+                    if len(set(l[i]+l[j]))==2:
+                        pairs.append(l[i])
+                        p_ind.append([i, j])
+        
+        for p in range(len(pairs)):
+            for i in range(len(l)):
+                if len(l[i])>1:
+                    if i not in p_ind[p]:
+                        for e in pairs[p]:
+                            if e in l[i]:
+                                l[i].remove(e)
+                                cont+=1
+        
+    return 1
+
+def gen_triplets (l):
+    
+    cont = 1
+    
+    while cont!=0:
+        
+        cont = 0
+        
+        singles = []
+        for i in l:
+            if len(i)==1:
+                singles.append(i[0])
+        
+        for s in singles:
+            for i in l:
+                if len(i)>1:
+                    if s in i:
+                        cont+=1
+                        i.remove(s)
+        
+        triplets = []; t_ind = []
+        
+        for i in range(len(l)-2):
+            if len(l[i]) in [2, 3]:
+                for j in range(i+1, len(l)-1):
+                    if len(l[j]) in [2, 3]:
+                        for k in range(j+1, len(l)):
+                            if len(l[k]) in [2, 3]:
+                                numbers = list(set(l[i]+l[j]+l[k]))
+                                if len(numbers)==3:
+                                    triplets.append(numbers)
+                                    t_ind.append([i, j, k])
+                                    
+        for t in range(len(triplets)):
+            for i in range(len(l)):
+                if len(l[i])>1:
+                    if i not in t_ind[t]:
+                        for e in triplets[t]:
+                            if e in l[i]:
+                                l[i].remove(e)
+                                cont+=1
+
+    return 1
+
+def row_PnT (sud):
+    
+    for row in sud:
+        
+        gen_pairs(row)
+        gen_triplets(row)
+        
+    return 1
+
+def column_PnT (sud):
+    
+    for c in range(9):
+        
+        column = [sud[r][c] for r in range(9)]
+        
+        gen_pairs (column)
+        gen_triplets(column)
+        
+    return 1
+
+def box_PnT (sud):
+    
+    for i in [0, 3, 6]:
+        for j in [0, 3, 6]:
+            
+            box = []
+            
+            for ii in range(3):
+                for jj in range(3):
+                    box.append(sud[i+ii][j+jj])
+            
+            gen_pairs (box)
+            gen_triplets(box)
+    
+    return 1            
+
+def sud_filter(sud):
+    
+    cont = 1
+    
+    while cont!=0:
+        
+        cont = 0
+        
+        for r in range(9):
+            for c in range(9):
+                
+                num = sud[r][c][0]
+                if len(sud[r][c])==1:
+                    sqr_r = 3*int(r//3)
+                    sqr_c = 3*int(c//3)
+                    for i in range(3):
+                        for j in range(3):
+                            y = sqr_r + i
+                            x = sqr_c + j
+                            if y!=r and x!=c:
+                                if num in sud[y][x]:
+                                    # if num==2:
+                                        # print(y, x, sud[y][x])
+                                    sud[y][x].remove(num)
+                                    cont+=1
+                    for i in range(9):
+                        if i!=c:
+                            if num in sud[r][i]:
+                                # if num==2:
+                                    # print(y, x, sud[y][x])
+                                sud[r][i].remove(num)
+                                cont+=1
+                                # print(r, i)
+                        if i!=r:
+                            if num in sud[i][c]:
+                                # if num==2:
+                                    # print(y, x, sud[y][x])
+                                sud[i][c].remove(num)
+                                cont+=1
+        # for i in sudoku:
+            # print(i)
+            # print('')
+        # draw_sud(sudoku)
+                    
+    return 1            
+
+
+def left(l):
+    
+    numbers = []
+    for i in l:
+        if len(i)>1:
+            numbers+=i
+    
+    numbers = list (set (numbers))
+    
+    left_num = []; ind_l = []
+    for num in numbers:
+        indc = []
+        for i in range(9):
+            if num in l[i]:
+                indc.append(i)
+        if len(indc)==1:
+            left_num.append(num); ind_l.append(indc[0])
+    
+    for ln in range(len(left_num)):
+        l[ind_l[ln]] = [left_num[ln]]
+        
+    return 1
+
+def row_left (sud):
+    
+    for row in range(9):
+        ls = sud[row]
+        left(ls)
+        sud[row] = ls
+    return 1
+
+def column_left (sud):
+    
+    for c in range(9):
+        column = [sud[r][c] for r in range(9)]
+        ls = column.copy()
+        left(ls)
+        for r in range(9):
+            sud[r][c] = ls[r]
+    
+    return 1
+
+def box_left (sud):
+    
+    for i in [0, 3, 6]:
+        for j in [0, 3, 6]:
+            
+            box = []
+            
+            for ii in range(3):
+                for jj in range(3):
+                    box.append(sud[i+ii][j+jj])
+            
+            left(box)
+            
+            ind = 0
+            for ri in range(i, i+3):
+                for ci in range(j, j+3):
+                    sud[ri][ci] = box[ind]
+                    ind+=1
+            
+    return 1
+
+def row_in_box (sud):
+    
+    for ri in range(9):
+        
+        rn = int(ri//3)*3
+        req_rows = [i for i in range (rn, rn+3)]
+        req_rows.remove(ri)
+        
+        row = sud[ri]
+
+        numbers = {i:[] for i in range(1, 10)}
+        for r in range(9):
+            for n in row[r]:
+                numbers[n].append(r)
+        # for re in numbers:
+        #     if len(numbers[re])==1:
+        #         numbers[re] = []
+        
+        for num in numbers:
+            if len(numbers[num])>1:
+                l1 = int(min(numbers[num])//3)*3
+                l2 = int(max(numbers[num])//3)*3
+                if l1==l2:
+                    for x in req_rows:
+                        for y in range(l1, l1+3):
+                            if num in sud[x][y]:
+                                sud[x][y].remove(num)
+        
+    return 1
+
+def column_in_box (sud):
+    
+    for c in range(9):
+        
+        column = [sud[ri][c] for ri in range(9)]
+        
+        numbers = {i:[] for i in range(1, 10)}
+        for e in range(9):
+            for n in column[e]:
+                numbers[n].append(e)
+        for ce in numbers:
+            if len(numbers[ce])==1:
+                numbers[ce] = []
+                    
+        for num in numbers:
+            if len(numbers[num])>1:
+                l1 = int(min(numbers[num])//3)*3
+                l2 = int(max(numbers[num])//3)*3
+                if l1==l2:
+                    for x in range(3*int(c//3), 3*int(c//3) +3):
+                        if x!=c:
+                            for y in range(l1, l1+3):
+                                if num in sud[y][x]:
+                                    sud[y][x].remove(num)
+                                    
+    return 1
+
+def box_in_RnC (sud):
+    
+    for r in [0, 3, 6]:
+        for c in [0, 3, 6]:
+            
+            numbers_r = {i:[] for i in range(1, 10)}
+            numbers_c = {i:[] for i in range(1, 10)}
+            
+            for x in range (r, r+3):
+                for y in range (c, c+3):
+                    
+                    for num in sud[x][y]:
+                        numbers_r[num].append(x)
+                        numbers_c[num].append(y)
+                        
+            for num in numbers_r:
+                if len(numbers_r[num])==1:
+                    numbers_r[num] = []
+                    
+            for num in numbers_c:
+                if len(numbers_c[num])==1:
+                    numbers_c[num] = []
+                    
+            # print(r, c)
+            # print(numbers_r, numbers_c)
+            
+            # print(numbers_r, numbers_c)
+            # for rows
+            for num in numbers_r:
+                if len(numbers_r[num])>0:
+                    if min(numbers_r[num])==max(numbers_r[num]):
+                        row_check = min(numbers_r[num])
+                        for e in range(9):
+                            if e not in [c, c+1, c+2]:
+                                if num in sud[row_check][e]:
+                                    sud[row_check][e].remove(num)
+            
+            # for columns
+            for num in numbers_c:
+                if len(numbers_c[num])>0:
+                    if min(numbers_c[num])==max(numbers_c[num]):
+                        column_check = min(numbers_c[num])#; print(column_check)
+                        for e in range(9):
+                            if e not in [r, r+1, r+2]:
+                                if num in sud[e][column_check]:
+                                    # print(e, column_check)
+                                    sud[e][column_check].remove(num)
+            # for i in sud:
+                # print (i)
+            # print('')
+            # print(sudoku[0])
+            # udraw_sud(sudoku)
+    return 1
+
+
+
+        
+for _ in range(6):
+    row_PnT(sudoku); column_PnT(sudoku); box_PnT(sudoku); sud_filter(sudoku)
+for _ in range(6):
+    row_left(sudoku); column_left(sudoku); box_left(sudoku); sud_filter(sudoku)
+for _ in range(3):
+    row_PnT(sudoku); column_PnT(sudoku); box_PnT(sudoku); sud_filter(sudoku)
+for _ in range(3):
+    row_left(sudoku); column_left(sudoku); box_left(sudoku); sud_filter(sudoku)
+
+draw_sud(sudoku)
+
+for _ in range(3):
+    row_in_box(sudoku); column_in_box(sudoku); box_in_RnC(sudoku)
+    # box_in_RnC(sudoku)
+    sud_filter(sudoku)
+    row_left(sudoku); column_left(sudoku); box_left(sudoku); sud_filter(sudoku)
+
+    
+draw_sud(sudoku)
+'''
+0 0 3 0 0 0 0 0 6
+
+0 6 0 3 2 9 0 0 0
+
+9 0 8 4 0 0 0 0 3
+
+0 1 0 0 0 3 0 0 0
+
+0 0 9 0 0 0 0 8 0
+
+0 7 0 1 9 0 0 0 2
+
+0 0 0 0 0 5 7 0 0
+
+4 0 0 2 0 6 0 1 0
+'''

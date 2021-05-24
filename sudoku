@@ -1,0 +1,253 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun 11 00:10:24 2020
+
+@author: kshitiz
+"""
+
+sud = [[0, 0, 0, 0, 0, 0, 3, 0, 0],
+       [0, 1, 0, 0, 9, 3, 4, 0, 6],
+       [0, 0, 9, 0, 1, 0, 0, 0, 0],
+       [0, 0, 1, 0, 3, 9, 8, 0, 0],
+       [2, 0, 0, 0, 4, 0, 0, 0, 0],
+       [0, 7, 0, 2, 5, 0, 0, 0, 0],
+       [0, 0, 0, 0, 2, 0, 0, 0, 4],
+       [0, 0, 0, 0, 0, 0, 0, 3, 5],
+       [7, 2, 3, 0, 0, 0, 0, 6, 0]]
+
+for i in sud:
+    print(" ".join(map(str, i)))
+
+def check(sud, r, c):
+    if sud[r][c]!=0:
+        return [sud[r][c]]
+    else:
+        check_from = []
+        sqr_r = 3*int(r//3)
+        sqr_c = 3*int(c//3)
+        for i in range(3):
+            for j in range(3):
+                y = sqr_r + i
+                x = sqr_c + j
+                val = sud[y][x]
+                if val!=0:
+                    check_from.append(val)
+        for i in range(9):
+            if sud[r][i]!=0:
+                check_from.append(sud[r][i])
+            if sud[i][c]!=0:
+                check_from.append(sud[i][c])
+        ans = []
+        for i in range(1, 10):
+            if i not in check_from:
+                ans.append(i)
+        if len(ans)==1:
+            print(r, c, check_from, ans)
+        return ans
+    
+def full_check(sud):
+    checked = [[0 for _ in range(9)] for _ in range(9)]
+    for i in range(9):
+        for j in range(9):
+            checked[i][j] = check(sud, i, j)
+    return checked
+
+def check2(sud, r, c):
+    if len(sud[r][c])==1:
+        return sud[r][c], 0
+    else:
+        change = 0
+        check_from = []
+        sqr_r = int(r//3)
+        sqr_c = int(c//3)
+        for i in range(3):
+            for j in range(3):
+                y = sqr_r + i
+                x = sqr_c + j
+                if len(sud[y][x])!=1:
+                    return 1
+    return 1
+
+def sud_filter(sud):
+    for r in range(9):
+        for c in range(9):
+            num = sud[r][c][0]
+            if len(sud[r][c])==1:
+                sqr_r = 3*int(r//3)
+                sqr_c = 3*int(c//3)
+                for i in range(3):
+                    for j in range(3):
+                        y = sqr_r + i
+                        x = sqr_c + j
+                        if y!=r and x!=c:
+                            if num in sud[y][x]:
+                                sud[y][x].remove(num)
+                for i in range(9):
+                    if i!=c:
+                        if num in sud[r][i]:
+                            sud[r][i].remove(num)
+                            print(r, i)
+                    if i!=r:
+                        if num in sud[i][c]:
+                            sud[i][c].remove(num)
+    return sud
+                    
+        
+sudoku = full_check(sud)
+sud1 = sudoku.copy()
+sudoku = sud_filter(sudoku)
+
+
+def draw_sud(sudoku):
+    status = 0
+    gap = 0
+    for i in sudoku:
+        gap+=1
+        st = ''
+        for j in range(9):
+            if len(i[j])==1:
+                st+=str(i[j][0])+' '
+            else:
+                status+=1
+                st+='. '
+            if (j+1)%3==0:
+                st+='  '
+        print(st)
+        if gap%3==0:
+            print('')
+    if status>0:
+        return 'UNSOLVED'
+    else:
+        return 'SOLVED'
+
+def draw_sud2(sudoku):
+    for row in sudoku:
+        l1 = ''; l2 = ''; l3 = ''
+        for cell in row:
+            a=1
+    return 1
+
+def find_group(l, indices):
+    n = len(l)
+    groups = []
+    for i in range(2, n+1):
+        temp_l = []
+        for j in l:
+            if len(j)<=i:
+                temp_l.append(j)
+        depth = i
+        while 1:
+            nums = []
+            for k in range(len(temp_l)):
+                a=1
+    return 1
+
+def find_group2(l, indices):
+    graph = {i:[] for i in range(1, 10)}
+    for i in l:
+        for j in range(len(i)-1):
+            num = i[j]
+            for k in i[j+1:]:
+                if k not in graph[num]:
+                    graph[num].append(k)
+    return graph
+                
+def find_pairs(l, indices):
+    used = []
+    pairs = []; ind = []
+    while 1:
+        ls = []
+        for i in range(len(l)):
+            if len(l[i])<=2:
+                ls.append(l[i])
+        cont = 0
+        for i in range(len(ls)-1):
+            for j in range(i+1, len(ls)):
+                if i not in used and j not in used:
+                    if len(ls[i])>0 and len(ls[j])>0:
+                        numbers = list(set(ls[i]+ls[j]))
+                        if len(numbers)==2:
+                            used.append(i); used.append(j)
+                            pairs.append(numbers)
+                            cont+=1
+                            ind.append([indices[i], indices[j]])
+                            
+                            for b in range(len(l)):
+                                # print(l[b])
+                                if b!=i and b!=j:
+                                    for n in numbers:
+                                        if n in l[b]:
+                                            l[b].remove(n)
+                            break
+        # print(cont, ls)
+        if cont==0:
+            break
+    return pairs, ind
+
+def find_triplets(l, indices):
+    ls = []
+    for i in l:
+        if len(i)<=3 and len(i)!=1:
+            ls.append(i)
+    triplets = []; ind=[]
+    while 1:
+        cont = 0
+        for i in range(len(ls)-2):
+            for j in range(i+1, len(ls)-1):
+                for k in range(j+1, len(ls)):
+                    if len(ls[i])>0 and len(ls[j])>0 and len(ls[k])>0:
+                        numbers = list(set(ls[i]+ls[j]+ls[k]))
+                        if len(numbers)==3:
+                            # print(ls, i, j, k)
+                            triplets.append(numbers)
+                            cont += 1
+                            ind.append([indices[i], indices[j], indices[k]])
+                            for box in ls:
+                                for n in numbers:
+                                    if n in box:
+                                        box.remove(n)
+                                        # print('     ', ls)
+                            break
+        if cont==0:
+            break
+    return triplets, ind
+                        
+                    
+    
+    
+        
+
+'''
+def row_group(sud):
+    new_sud = []
+    for row in sud:
+        d = {i:[] for i in range(2, 10)}
+        for i in range(9):
+            elem = len(row[i])
+            if elem>1:
+                length[elem].append(i)
+        sorted_boxes = []; indices = []
+        for i in d:
+            for j in d[i]:
+                sorted_boxes.append(row[j])
+                indices.append(j)
+        while 1:
+            temp = sorted_boxes[0]
+            temp_ind = [0]
+            for i in range(1, len(sorted_boxes)):
+                box = sorted_boxes[i]
+                to_add = 0
+                for b in box:
+                    if b in temp:
+                        to_add = 1
+                        break
+                if to_add:
+                    for b in box:
+                        if b not in temp:
+                            temp.append(b)
+                    temp_ind.append(i)
+                
+                
+        
+'''
